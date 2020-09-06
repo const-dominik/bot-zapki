@@ -4,7 +4,6 @@ const Account = require("./classes/Account");
 const Credentials = require("./classes/Credentials");
 
 const file = JSON.parse(fs.readFileSync("dates.json", "utf8"));
-console.log(file);
 
 const client = new Discord.Client();
 
@@ -17,7 +16,7 @@ client.on("message", async (msg) => {
 
   if (msg.channel.id !== "743604681716269079") return;
   if (msg.author.bot) return;
-  if (!["zap", "login", "probny"].includes(command)) return msg.delete();
+  if (!["zap", "login", "probny", "czasowka"].includes(command)) return;
 
   if (command === "login") {
     await user.sign_in(msg.author.id);
@@ -50,6 +49,11 @@ client.on("message", async (msg) => {
     } else {
       await user.send_message(msg.author.id, "Brak danych.");
     }
+  }
+
+  if (command === "czasowka") {
+    const [, mob] = msg.content.split("!czasowka ");
+    await user.get_timer(msg.author.id, mob);
   }
 });
 
