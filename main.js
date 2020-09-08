@@ -2,7 +2,10 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const Account = require("./classes/Account");
 const Credentials = require("./classes/Credentials");
-
+const readline = require("readline").createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 const file = JSON.parse(fs.readFileSync("dates.json", "utf8"));
 
 const client = new Discord.Client();
@@ -56,6 +59,12 @@ client.on("message", async (msg) => {
     await user.get_timer(msg.author.id, mob);
   }
 });
+
+const aa = () => {
+
+}
+aa();
+
 
 const userCredentials = new Credentials("kontonakolos1", "biologia123");
 const user = new Account(userCredentials, client);

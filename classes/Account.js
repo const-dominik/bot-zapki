@@ -47,6 +47,7 @@ class Account {
           hs3: getCookieValue("hs3", hs3),
           user_id: getCookieValue("user_id", user_id),
         };
+        console.log(cookies);
         return cookies;
       };
 
@@ -73,7 +74,7 @@ class Account {
           referer: `https://www.margonem.pl/?task=profile&id=${id}`,
         },
       });
-      const data = response.data;
+      const data = response.data.err;
       await this.send_message(author_id, `\n${id}: ${JSON.stringify(data)}`);
       if (data.err !== "Wysłano zaproszenie na świat nyras") {
         return false;
@@ -110,7 +111,8 @@ class Account {
       data = data.rows[0];
       const date = new Date(data.tss * 1000).toLocaleString();
       const map = data.town;
-      const [, winner] = data[`team${data.winner}`].match(/(.+) +\(/);
+      let [, winner] = data[`team${data.winner}`].match(/(.+) \(.+\)/);
+      winner = winner.replace(/<PID>\d+<\/PID>/g, "");
       await this.send_message(
         author_id,
         `Ostatni ${mob} był ${date}, na mapie ${map}, zwyciężył ${winner}.`
