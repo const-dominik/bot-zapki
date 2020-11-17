@@ -2,11 +2,6 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const Account = require("./classes/Account");
 const Credentials = require("./classes/Credentials");
-const readline = require("readline").createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-const file = JSON.parse(fs.readFileSync("dates.json", "utf8"));
 
 const client = new Discord.Client();
 
@@ -17,9 +12,11 @@ const sleep = () =>
 client.on("message", async (msg) => {
   const [, command] = msg.content.match(/!(\w+)/) || [];
 
-  if (msg.channel.id !== "743604681716269079") return;
+  if (!["743604681716269079", "753280724911521954"].includes(msg.channel.id))
+    return;
   if (msg.author.bot) return;
   if (!["zap", "login", "probny", "czasowka"].includes(command)) return;
+  const file = JSON.parse(fs.readFileSync("dates.json", "utf8"));
 
   if (command === "login") {
     await user.sign_in(msg.author.id);
@@ -31,9 +28,9 @@ client.on("message", async (msg) => {
       const zap = await user.send_invite(id, msg.author.id);
       if (!zap) return;
       if (!file.hasOwnProperty(id)) file[id] = new Date().getTime();
-      fs.writeFileSync("dates.json", JSON.stringify(file));
       await sleep();
     }
+    fs.writeFileSync("dates.json", JSON.stringify(file));
   }
 
   if (command === "probny") {
@@ -45,9 +42,9 @@ client.on("message", async (msg) => {
       const isOnProbation = added + probationInMs > current;
       await user.send_message(
         msg.author.id,
-        isOnProbation
-          ? "gracz jest na okresie próbnym"
-          : "gracz nie jest na okresie próbnym"
+        isOnProbation ?
+        "gracz jest na okresie próbnym" :
+        "gracz nie jest na okresie próbnym"
       );
     } else {
       await user.send_message(msg.author.id, "Brak danych.");
@@ -56,15 +53,9 @@ client.on("message", async (msg) => {
 
   if (command === "czasowka") {
     const [, mob] = msg.content.split("!czasowka ");
-    await user.get_timer(msg.author.id, mob);
+    await user.get_timer(msg.author.id, mob, msg.channel.id);
   }
 });
-
-const aa = () => {
-
-}
-aa();
-
 
 const userCredentials = new Credentials("kontonakolos1", "biologia123");
 const user = new Account(userCredentials, client);

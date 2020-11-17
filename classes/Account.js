@@ -20,8 +20,7 @@ class Account {
         method: "POST",
         data: this.credentials.toString,
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
+          "User-Agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
         },
       });
       const data = response.data;
@@ -35,7 +34,7 @@ class Account {
       }
 
       const getCookieValue = (name, string) => {
-        const regExp = new RegExp(String.raw`${name}=([\w\d]+);`);
+        const regExp = new RegExp(String.raw `${name}=([\w\d]+);`);
         const [, value] = string.match(regExp);
         return value;
       };
@@ -58,6 +57,17 @@ class Account {
     }
   }
   async send_invite(id = 0, author_id) {
+    if (
+      ![
+        "363038285020266496",
+        "349836529616814091",
+        "450686367312248833",
+      ].includes(author_id)
+    ) {
+      await this.send_message(author_id, "brak praw dostępu");
+      return false;
+    }
+
     if (Object.values(this.cookies).length === 0) {
       await this.send_message(author_id, "najpierw się zaloguj..");
       return false;
@@ -68,8 +78,7 @@ class Account {
         method: "POST",
         data: `t=sendinvite&w=${this.config.world}&id=${id}&h2=${this.cookies.hs3}&security=true`,
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
+          "User-Agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
           Cookie: `user_id=${this.cookies.user_id}; chash=${this.cookies.chash}; hs3=${this.cookies.hs3};`,
           referer: `https://www.margonem.pl/?task=profile&id=${id}`,
         },
@@ -85,46 +94,46 @@ class Account {
     }
   }
 
-  async get_timer(author_id, mob) {
+  async get_timer(author_id, mob, channel) {
     if (Object.values(this.cookies).length === 0) {
-      await this.send_message(author_id, "najpierw się zaloguj..");
+      await this.send_message(author_id, "najpierw się zaloguj..", channel);
       return false;
     }
 
     const response = await axios(this.TABLES_URL, {
       method: "POST",
-      data: `task=battle&world=nyras&filter_int=0&filter_str=${encodeURI(
-        mob
-      )}&filter_date=&from=0&limit=1&hs3=${this.cookies.hs3}`,
+      data: `task=battle&world=nyras&filter_int=0&filter_str=${encodeURI(mob)}&filter_date=&from=0&limit=1&hs3=${this.cookies.hs3}`,
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
         Cookie: `user_id=${this.cookies.user_id}; chash=${this.cookies.chash}; hs3=${this.cookies.hs3};`,
         referer: `http://serwery.margonem.pl/`,
       },
     });
     let data = response.data;
     if (data === "Not authorized!")
-      return this.send_message(author_id, "najpierw się zaloguj..");
+      return this.send_message(author_id, "najpierw się zaloguj..", channel);
 
     if (data.rows.length) {
       data = data.rows[0];
       const date = new Date(data.tss * 1000).toLocaleString();
       const map = data.town;
-      let [, winner] = data[`team${data.winner}`].match(/(.+) \(.+\)/);
+      let winner = data[`team${data.winner}`];
       winner = winner.replace(/<PID>\d+<\/PID>/g, "");
       await this.send_message(
         author_id,
-        `Ostatni ${mob} był ${date}, na mapie ${map}, zwyciężył ${winner}.`
+        `Ostatni ${mob} był ${date}, na mapie ${map}, zwyciężył ${winner}.`,
+        channel
       );
     } else {
-      await this.send_message(author_id, "Brak danych nt. " + mob);
+      await this.send_message(author_id, "Brak danych nt. " + mob, channel);
     }
   }
 
-  async send_message(author_id, data) {
+  async send_message(author_id, data, channel_id = false) {
     const message = `<@${author_id}> ${data}`;
-    const channel = this.client.channels.cache.get(this.config.channelID);
+    const channel = this.client.channels.cache.get(
+      channel_id || this.config.channelID
+    );
     await channel.send(message);
   }
 }
