@@ -57,6 +57,6 @@ client.on("message", async (msg) => {
   }
 });
 
-const userCredentials = new Credentials("kontonakolos1", "biologia123");
+const userCredentials = new Credentials("", "");
 const user = new Account(userCredentials, client);
-client.login("NzQzNTg5NTA4MTM3NjE1NDEx.XzW3sQ.J-CZg9HT_cGSDBtSEjno_2grf60");
+client.login("");
